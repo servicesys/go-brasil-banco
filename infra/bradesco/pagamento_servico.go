@@ -31,8 +31,8 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 	remessa.Header["codigo_lote"] = 0000
 	remessa.Header["tipo_registro"] = 0
 
-	remessa.Header["tipo_inscricao"] =  remessaPagamentoBoleto.ContaMovimentacao.TipoTitular
-	remessa.Header["inscricao_numero"] =  remessaPagamentoBoleto.ContaMovimentacao.DocTitular
+	remessa.Header["tipo_inscricao"] = remessaPagamentoBoleto.ContaMovimentacao.TipoTitular
+	remessa.Header["inscricao_numero"] = remessaPagamentoBoleto.ContaMovimentacao.DocTitular
 	remessa.Header["codigo_convenio_banco"] = remessaPagamentoBoleto.ContaMovimentacao.Convenio // "348828"
 	remessa.Header["agencia_debito"] = remessaPagamentoBoleto.ContaMovimentacao.Agencia
 	remessa.Header["agencia_digito"] = remessaPagamentoBoleto.ContaMovimentacao.AgenciaDigito
@@ -71,7 +71,7 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 
 	lote.Header["identificacao_lancamento"] = "0"
 	lote.Header["agencia_debito"] = remessaPagamentoBoleto.ContaMovimentacao.Agencia
-	lote.Header["agencia_debito_digito"] =  remessaPagamentoBoleto.ContaMovimentacao.AgenciaDigito
+	lote.Header["agencia_debito_digito"] = remessaPagamentoBoleto.ContaMovimentacao.AgenciaDigito
 	lote.Header["conta_debito"] = remessaPagamentoBoleto.ContaMovimentacao.ContaCorrente
 	lote.Header["conta_debito_digito"] = remessaPagamentoBoleto.ContaMovimentacao.ContaCorrenteDigito
 
@@ -96,13 +96,12 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 	detalhe2["segmento_j"]["codigo_lote"] = 1
 	detalhe2["segmento_j"]["numero_registro"] = 1
 	detalhe2["segmento_j"]["tipo_movimento"] = 000
-	detalhe2["segmento_j"]["nome_cedente"] = "CENDENTE DO BOLETO"
-
+	detalhe2["segmento_j"]["nome_cedente"] = "CENDENTE DO BOLETO "
 
 	var codigoBarra = comum.CodigoBarras{Banco: "756",
 		Valor:          269.21,
-		DataVencimento:  time.Date(2020, time.Month(12), 10, 0, 0, 0, 0, time.UTC),
-		CampoLivre: "0000002962087000000000117",
+		DataVencimento: time.Date(2020, time.Month(12), 10, 0, 0, 0, 0, time.UTC),
+		CampoLivre:     "0000002962087000000000117",
 	}
 
 	println(codigoBarra.String())
@@ -113,7 +112,6 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 	detalhe2["segmento_j"]["data_vencimento"] = 10122020
 	detalhe2["segmento_j"]["data_pagamento"] = 10122020
 	detalhe2["segmento_j"]["codigo_moeda"] = "09"
-
 
 	//J52
 	detalhe2["segmento_j_52"]["codigo_lote"] = 1
@@ -134,7 +132,6 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 	detalhe2["segmento_j_52"]["sacador_tipo_inscricao"] = 2
 	detalhe2["segmento_j_52"]["sacador_numero_inscricao"] = 9987222000178
 	detalhe2["segmento_j_52"]["sacador_nome"] = "Centro de Educação Fenix Ltda-ME"
-
 
 	lote.InserirDetalhe(detalhe2)
 
@@ -159,8 +156,11 @@ func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaBoleto(reme
 	return "path bradesco remesssa", nil
 }
 
-func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArquivo string) (pagamento.RetornoPagamento, error) {
+func (pagamentoBradescoServico PagamentoBradescoServico) GerarRemessaTransferencia(transferencia pagamento.RemessaTransferencia) (string, error) {
+	return "path bradesco remesssa", nil
+}
 
+func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArquivo string) (pagamento.RetornoPagamento, error) {
 
 	source := strings.NewReader(CNAB240PagamentosBRADESCO)
 	layout, _ := superfile.NewLayout(source)
@@ -172,23 +172,21 @@ func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArqu
 
 	fmt.Println(retorno.Header)
 
-	totalLotes  := retorno.TotalLotes()
+	totalLotes := retorno.TotalLotes()
 	fmt.Println(totalLotes)
-	var idx int64 =0
-	for  ; idx < totalLotes ; idx++ {
+	var idx int64 = 0
+	for ; idx < totalLotes; idx++ {
 
-		segmentos :=retorno.Lotes[idx].Segmentos()
-
+		segmentos := retorno.Lotes[idx].Segmentos()
 
 		//detalhe :=retorno.Lotes[idx].NovoDetalhe()
 
 		//retorno.Lotes[idx].InserirDetalhe(detalhe)
 
-		for _, element := range  segmentos{
+		for _, element := range segmentos {
 			fmt.Println("----------------")
 			//fmt.Println(index)
 			fmt.Println(element.Valores["segmento_codigo"])
-
 
 			if "A" == element.Valores["segmento_codigo"] {
 
@@ -205,7 +203,7 @@ func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArqu
 				fmt.Println(element.Valores["nome_favorecido"])
 			}
 
-			if "J" ==  element.Valores["segmento_codigo"] {
+			if "J" == element.Valores["segmento_codigo"] {
 
 				fmt.Println(element.Valores)
 				fmt.Println(element.Valores["codigo_ocorrencias"])
@@ -217,8 +215,6 @@ func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArqu
 				fmt.Println(element.Valores["codigo_documento_empresa"])
 				fmt.Println(element.Valores["codigo_barra"])
 
-
-
 			}
 
 			//fmt.Println(element.Valores["numero_sequencial_registro"])
@@ -227,12 +223,11 @@ func (pagamentoBradescoServico PagamentoBradescoServico) LeituraRetorno(pathArqu
 				fmt.Println(v)
 			}*/
 
-
 			fmt.Println("----------------")
 		}
 
 		//trailerr lote
-		traillerLoteRegistro :=retorno.Lotes[idx].Trailer
+		traillerLoteRegistro := retorno.Lotes[idx].Trailer
 		fmt.Println(traillerLoteRegistro)
 
 	}

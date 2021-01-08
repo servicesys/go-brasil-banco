@@ -19,6 +19,14 @@ type RegistroPagamentoRemessa struct {
 }
 
 
+type RemessaTransferencia struct {
+	ID                 string
+	Sequencial         int
+}
+
+
+
+
 type RetornoPagamento struct {
 	comum.ContaMovimentacao
 	Registros []RegistroPagamentoRetorno
